@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, time
 from streamlit_calendar import calendar
 
 # --- 1. Page Config ---
-st.set_page_config(layout="wide", page_title="fNIRS Lab Booking", page_icon="🧠")
+st.set_page_config(layout="wide", page_title="fNIRS Slot Booking", page_icon="🧠")
 
 # Custom CSS for better spacing and styling
 st.markdown("""
@@ -79,12 +79,12 @@ with col_control:
     st.markdown('<div class="main-header">🛠️ Management</div>', unsafe_allow_html=True)
     
     # Use Tabs for Booking vs Canceling
-    tab_book, tab_cancel = st.tabs(["📅 Book Slot", "❌ Cancel Slot"])
+    tab_book, tab_cancel = st.tabs(["🧠 Book Slot", "❌ Cancel Slot"])
 
     # --- TAB 1: BOOKING ---
     with tab_book:
         with st.container(border=True):
-            researcher_name = st.text_input("Researcher Name", placeholder="e.g. Dr. Jane Doe")
+            researcher_name = st.text_input("Researcher Name", placeholder="e.g. Shane")
             selected_equipment = st.selectbox("Select Equipment", EQUIPMENT_OPTIONS)
             booking_date = st.date_input("Date", min_value=datetime.today())
             booking_date_str = booking_date.strftime("%Y-%m-%d")
@@ -128,7 +128,13 @@ with col_control:
         today_str = datetime.now().strftime("%Y-%m-%d")
         if not df.empty:
             # Create a readable label for the selectbox
-            df['display_label'] = df['Date'] + " | " + df['Start_Time'] + " | " + df['Researcher'] + " | " + df['Equipment']
+            df = df.fillna("") 
+            df['display_label'] = (
+                df['Date'].astype(str) + " | " + 
+                df['Start_Time'].astype(str) + " | " + 
+                df['Researcher'].astype(str) + " | " + 
+                df['Equipment'].astype(str)
+            )
             
             # Sort by date (reverse) so newest is top
             df = df.sort_values(by="Date", ascending=False)
