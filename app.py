@@ -4,10 +4,10 @@ import pandas as pd
 from datetime import datetime, timedelta, time
 from streamlit_calendar import calendar
 
-# --- 1. Page Config ---
+# 1. Page Config
 st.set_page_config(layout="wide", page_title="fNIRS Slot Booking", page_icon="🧠")
 
-# Custom CSS for better spacing and styling
+# custom CSS for better spacing and styling
 st.markdown("""
     <style>
     .stAlert { border-radius: 10px; }
@@ -15,14 +15,14 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. Constants & Helpers ---
+# 2. Constants & Helpers
 EQUIPMENT_OPTIONS = [
     "fNIRS Frontal A (25330)", 
     "fNIRS Frontal B (25215)", 
     "Both (Hyperscanning)"
 ]
 
-# Generate standard time strings "09:00", "10:00"...
+# generate standard time strings "09:00", "10:00"...
 TIME_STRINGS = [f"{hour:02d}:00" for hour in range(8, 21)] # Extended to 8am - 8pm
 
 def get_data():
@@ -51,7 +51,7 @@ def check_conflict(df, date_str, start_time_str, equipment):
     if df.empty:
         return False
     
-    # Filter by date and time
+    # filter by date and time
     conflict_subset = df[
         (df["Date"] == date_str) & 
         (df["Start_Time"] == start_time_str)
@@ -69,19 +69,19 @@ def check_conflict(df, date_str, start_time_str, equipment):
             
     return False
 
-# --- 3. Layout ---
+# 3. Layout
 st.info("💡 **Lab Notice:** Please ensure fNIRS caps are cleaned and returned to the charging station after your session.")
 
 col_control, col_calendar = st.columns([1, 2.5], gap="large")
 
-# --- 4. Left Column: Control Panel ---
+# 4. Left Column: Control Panel
 with col_control:
     st.markdown('<div class="main-header">🛠️ Management</div>', unsafe_allow_html=True)
     
-    # Use Tabs for Booking vs Canceling
+    # use Tabs for Booking vs Canceling
     tab_book, tab_cancel = st.tabs(["🧠 Book Slot", "❌ Cancel Slot"])
 
-    # --- TAB 1: BOOKING ---
+    # TAB 1: BOOKING
     with tab_book:
         with st.container(border=True):
             researcher_name = st.text_input("Researcher Name", placeholder="e.g. Shane")
@@ -91,7 +91,7 @@ with col_control:
             
             start_time_str = st.selectbox("Start Time (1 Hour)", TIME_STRINGS, index=1)
             
-            # Calculate End Time
+            # calculate End Time
             try:
                 start_dt = datetime.strptime(str(start_time_str).strip(), "%H:%M")
                 end_time_str = (start_dt + timedelta(hours=1)).strftime("%H:%M")
@@ -119,7 +119,7 @@ with col_control:
                         st.success("✅ Booking Confirmed!")
                         st.rerun()
 
-    # --- TAB 2: CANCELLATION ---
+    # TAB 2: CANCELLATION
     with tab_cancel:
         st.write("Select a booking below to remove it.")
         df = get_data()
@@ -154,7 +154,7 @@ with col_control:
         else:
             st.info("No bookings found in the database.")
 
-# --- 5. Right Column: Calendar ---
+# 5. Right Column: Calendar
 with col_calendar:
     df = get_data()
     calendar_events = []
@@ -198,7 +198,7 @@ with col_calendar:
     # Render Calendar & Capture Click Event
     cal_state = calendar(events=calendar_events, options=calendar_options)
 
-    # --- 6. Event Detail Popup (Solving the Visibility Issue) ---
+    # 6. Event Detail Popup (Solving the Visibility Issue)
     if cal_state.get("eventClick"):
         event_data = cal_state["eventClick"]["event"]
         props = event_data.get("extendedProps", {})
