@@ -22,8 +22,8 @@ EQUIPMENT_OPTIONS = [
     "Both (Hyperscanning)"
 ]
 
-TIME_SLOTS = [time(i, 0) for i in range(9, 19)]  # 9:00 到 18:00
-TIME_STRINGS = [t.strftime("%H:%00") for t in TIME_SLOTS]
+# 直接生成 "09:00", "10:00" ... 确保格式绝对统一
+TIME_STRINGS = [f"{hour:02d}:00" for hour in range(9, 19)]
 
 def get_data():
     """从 Google Sheets 读取数据"""
@@ -97,8 +97,14 @@ with col_form:
         start_time_str = st.selectbox("Time (1 Hour Slot)", TIME_STRINGS, index=2) # 默认 11:00
         
         # 计算结束时间用于显示
-        start_dt = datetime.strptime(start_time_str, "%H:%M")
-        end_time_str = (start_dt + timedelta(hours=1)).strftime("%H:%M")
+        # 加上 try-except 块，万一出错能看到具体是什么字符串导致的问题
+        try:
+            # 确保 start_time_str 是字符串并去除空格
+            start_dt = datetime.strptime(str(start_time_str).strip(), "%H:%M")
+            end_time_str = (start_dt + timedelta(hours=1)).strftime("%H:%M")
+        except ValueError as e:
+            st.error(f"时间格式错误: {start_time_str}")
+            st.stop()
         
         submit = st.button("Confirm Booking", type="primary", use_container_width=True)
 
