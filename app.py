@@ -23,7 +23,7 @@ EQUIPMENT_OPTIONS = [
 ]
 
 # generate standard time strings "09:00", "10:00"...
-TIME_STRINGS = [f"{hour:02d}:00" for hour in range(8, 21)] # Extended to 8am - 8pm
+TIME_STRINGS = [f"{hour:02d}:00" for hour in range(8, 20)] # Extended to 8am - 8pm
 
 @st.cache_data(ttl=5)
 def get_data():
