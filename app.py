@@ -25,17 +25,21 @@ EQUIPMENT_OPTIONS = [
 # generate standard time strings "09:00", "10:00"...
 TIME_STRINGS = [f"{hour:02d}:00" for hour in range(8, 21)] # Extended to 8am - 8pm
 
+@st.cache_data(ttl=5)
 def get_data():
     """Fetch data from Google Sheets"""
     conn = st.connection("gsheets", type=GSheetsConnection)
     try:
-        df = conn.read(worksheet="Sheet1", ttl=0) # Ensure worksheet name matches your GSheet tab
+        # 注意：这里我们依然保留 ttl=0 给 connection，但外层的 st.cache_data 会拦截请求
+        df = conn.read(worksheet="Sheet1", ttl=0) 
         expected_cols = ["Researcher", "Equipment", "Date", "Start_Time", "End_Time", "Created_At"]
-        # Handle empty sheet case
+        
         if df.empty or not set(expected_cols).issubset(df.columns):
             return pd.DataFrame(columns=expected_cols)
-        # Ensure Date is string for consistency
+        
         df["Date"] = df["Date"].astype(str)
+        # 强制把所有需要显示的列都变成字符串，防止之前那个 "TypeError"
+        df = df.fillna("")
         return df
     except Exception as e:
         st.error(f"Database Error: {e}")
@@ -45,6 +49,9 @@ def update_data(df):
     """Write updated dataframe back to Google Sheets"""
     conn = st.connection("gsheets", type=GSheetsConnection)
     conn.update(worksheet="Sheet1", data=df)
+    # 2. 关键步骤：写入成功后，立刻清除上面的缓存！
+    # 这样用户刷新页面时，一定能看到最新的预订，而不是 5 秒前的旧数据。
+    st.cache_data.clear()
 
 def check_conflict(df, date_str, start_time_str, equipment):
     """Check for booking conflicts"""
