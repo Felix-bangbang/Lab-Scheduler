@@ -10,40 +10,108 @@ st.set_page_config(layout="wide", page_title="Collective Minds Lab", page_icon="
 # ── Global CSS ────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&display=swap');
+
+/* ── Full-page pastel mesh gradient background ── */
+[data-testid="stAppViewContainer"] {
+    background: 
+        radial-gradient(ellipse at 15% 85%, rgba(178, 213, 210, 0.55) 0%, transparent 55%),
+        radial-gradient(ellipse at 80% 10%, rgba(230, 200, 210, 0.5) 0%, transparent 50%),
+        radial-gradient(ellipse at 55% 40%, rgba(240, 185, 170, 0.45) 0%, transparent 45%),
+        radial-gradient(ellipse at 90% 75%, rgba(195, 220, 235, 0.5) 0%, transparent 50%),
+        radial-gradient(ellipse at 30% 20%, rgba(210, 230, 240, 0.6) 0%, transparent 50%),
+        linear-gradient(160deg, #e8f4f8 0%, #f5ede8 50%, #eaf4f2 100%);
+    background-attachment: fixed;
+}
+
+[data-testid="stHeader"] {
+    background: transparent !important;
+}
+
+/* Make the main block transparent so background shows */
+[data-testid="stMain"] > div,
+[data-testid="block-container"] {
+    background: transparent !important;
+}
+
+/* ── Room cards — glassmorphism ── */
 .room-card {
-    background: rgba(173, 196, 215, 0.35);
-    border: 2px solid rgba(80, 120, 160, 0.55);
-    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1.5px solid rgba(255, 255, 255, 0.75);
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(160, 140, 150, 0.12), 0 1px 4px rgba(200, 160, 150, 0.08);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 28px 12px;
+    padding: 32px 16px;
     min-height: 190px;
     text-align: center;
+    transition: box-shadow 0.25s, transform 0.2s, background 0.25s;
+}
+.room-card:hover {
+    background: rgba(255, 255, 255, 0.62);
+    box-shadow: 0 8px 36px rgba(180, 140, 150, 0.18);
+    transform: translateY(-2px);
 }
 
 .room-name {
-    font-size: 1.05rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
     font-weight: 700;
-    color: #1a3a5c;
-    letter-spacing: 0.04em;
+    color: #6b5b6e;
+    letter-spacing: 0.14em;
     margin-bottom: 6px;
     text-transform: uppercase;
 }
 .room-number {
-    font-size: 2.2rem;
-    font-weight: 300;
-    color: #2c5f8a;
-    letter-spacing: 0.08em;
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.8rem;
+    font-weight: 400;
+    color: #4a5568;
+    letter-spacing: 0.04em;
+    line-height: 1.1;
 }
 .room-tag {
-    font-size: 0.72rem;
-    color: #3a6e99;
-    margin-top: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.70rem;
+    color: #9b8fa0;
+    margin-top: 10px;
     font-style: italic;
+    letter-spacing: 0.04em;
 }
-.stAlert { border-radius: 10px; }
+
+/* ── Floor plan wrapper ── */
+.floor-wrapper {
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1.5px solid rgba(255, 255, 255, 0.55);
+    border-radius: 24px;
+    padding: 32px 32px 24px 32px;
+    box-shadow: 0 8px 40px rgba(160, 130, 140, 0.10);
+}
+
+/* ── Book button override ── */
+[data-testid="stButton"] > button[kind="primary"] {
+    background: linear-gradient(135deg, #d4a5b0 0%, #a8c4d4 100%) !important;
+    border: none !important;
+    border-radius: 30px !important;
+    color: white !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.05em !important;
+    box-shadow: 0 2px 12px rgba(180, 140, 155, 0.28) !important;
+    transition: opacity 0.2s, transform 0.15s !important;
+}
+[data-testid="stButton"] > button[kind="primary"]:hover {
+    opacity: 0.9 !important;
+    transform: translateY(-1px) !important;
+}
+
+.stAlert { border-radius: 14px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -138,12 +206,15 @@ def get_event_color(equipment, color_map):
 def render_home():
     # ── Title ─────────────────────────────────────────────────────────────────
     st.markdown("""
-    <div style="padding: 10px 0 6px 0;">
-        <span style="font-size:2.0rem; font-weight:800; color:#1a3a5c; letter-spacing:0.04em;">
-            COLLECTIVE MINDS Lab
+    <div style="padding: 18px 0 8px 0;">
+        <span style="font-family:'DM Serif Display', serif; font-size:2.4rem; font-weight:400;
+                     background: linear-gradient(135deg, #b07a8a, #7a9eb5, #8fbfb5);
+                     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                     background-clip: text; letter-spacing:0.02em;">
+            Collective Minds Lab
         </span><br>
-        <span style="font-size:1.0rem; color:#4a7fa5; font-style:italic;">
-            Room Booking System &nbsp;·&nbsp; Click a room to view schedule & book
+        <span style="font-family:'DM Sans',sans-serif; font-size:0.95rem; color:#9b8fa0; font-style:italic; letter-spacing:0.04em;">
+            Room Booking System &nbsp;·&nbsp; Click a room to view schedule &amp; book
         </span>
     </div>
     """, unsafe_allow_html=True)
@@ -152,13 +223,9 @@ def render_home():
 
     # ── Blueprint background ───────────────────────────────────────────────────
     st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, #c8d8e8 0%, #dce8f0 50%, #c5d5e5 100%);
-        border: 2.5px solid #6a9ab8;
-        border-radius: 10px;
-        padding: 28px 28px 20px 28px;
-    ">
-    <p style="text-align:center; color:#3a6080; font-size:0.8rem; margin:0 0 14px 0; letter-spacing:0.12em; text-transform:uppercase;">
+    <div class="floor-wrapper">
+    <p style="text-align:center; font-family:'DM Sans',sans-serif; color:#b0a0b0;
+              font-size:0.75rem; margin:0 0 20px 0; letter-spacing:0.18em; text-transform:uppercase;">
         4th Floor · Building A
     </p>
     """, unsafe_allow_html=True)
@@ -241,7 +308,7 @@ def render_home():
             st.session_state.page = "430"
             st.rerun()
 
-    # Close blueprint div
+    # Close floor-wrapper div
     st.markdown("</div>", unsafe_allow_html=True)
 
 
@@ -259,7 +326,10 @@ def render_room(room_id: str):
     with hcol1:
         st.markdown(f"""
         <div style="padding: 6px 0 2px 0;">
-            <span style="font-size:1.6rem; font-weight:800; color:#1a3a5c;">
+            <span style="font-family:'DM Serif Display', serif; font-size:1.7rem; font-weight:400;
+                         background: linear-gradient(135deg, #b07a8a, #7a9eb5);
+                         -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                         background-clip: text;">
                 Room {cfg['number']} — {cfg['name']}
             </span>
         </div>
@@ -275,7 +345,7 @@ def render_room(room_id: str):
 
     # ── Left: Controls ────────────────────────────────────────────────────────
     with col_control:
-        st.markdown('<div style="font-size:1.05rem; font-weight:700; margin-bottom:10px; color:#1a3a5c;">🛠️ Manage Bookings</div>', unsafe_allow_html=True)
+        st.markdown('<div style="font-size:1.05rem; font-weight:700; margin-bottom:10px; color:#6b5b6e;">🛠️ Manage Bookings</div>', unsafe_allow_html=True)
         tab_book, tab_cancel = st.tabs(["📅 Book Slot", "❌ Cancel Slot"])
 
         with tab_book:
