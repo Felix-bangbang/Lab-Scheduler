@@ -22,11 +22,7 @@ st.markdown("""
     min-height: 190px;
     text-align: center;
 }
-.room-card.inactive {
-    background: rgba(160, 180, 195, 0.2);
-    border-style: dashed;
-    opacity: 0.55;
-}
+
 .room-name {
     font-size: 1.05rem;
     font-weight: 700;
@@ -185,10 +181,10 @@ def render_home():
 
     with r1c2:
         st.markdown("""
-        <div class="room-card inactive">
+        <div class="room-card">
             <div class="room-name">Store</div>
             <div class="room-number">428</div>
-            <div class="room-tag">Storage — not bookable</div>
+            <div class="room-tag">Storage</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -225,10 +221,10 @@ def render_home():
 
     with r2c2:
         st.markdown("""
-        <div class="room-card inactive">
+        <div class="room-card">
             <div class="room-name">Foyer</div>
             <div class="room-number">425</div>
-            <div class="room-tag">Common area — not bookable</div>
+            <div class="room-tag">Common area</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -248,14 +244,7 @@ def render_home():
     # Close blueprint div
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # Legend
-    st.markdown("""
-    <div style="margin-top:12px; display:flex; gap:28px; padding-left:4px; font-size:0.83rem; color:#4a7fa5;">
-        <span>🔵🟢 EEG rooms (426, 427)</span>
-        <span>🔴🟣 fNIRS rooms (429, 430)</span>
-        <span style="opacity:0.55;">Grey = non-bookable (425, 428)</span>
-    </div>
-    """, unsafe_allow_html=True)
+
 
 
 # ═════════════════════════════════════════════════════════════════════════════
