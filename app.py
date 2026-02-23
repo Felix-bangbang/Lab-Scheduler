@@ -124,7 +124,7 @@ ROOMS = {
         "notice": "💡 Please clean EEG electrodes and return the amplifier to its storage case after your session.",
         "equipment_options": ["EEG System A", "EEG System B", "Both Systems (Hyperscanning)"],
         "color_map": {"default": "#27ae60", "B": "#f39c12", "Both": "#e74c3c"},
-        "tag": "🔵 EEG · Click to book",
+        "tag": "EEG · Click to book",
     },
     "426": {
         "name": "EEG Hyperscanning",
@@ -133,7 +133,7 @@ ROOMS = {
         "notice": "💡 Please clean EEG electrodes and return both amplifiers to their storage cases after your session.",
         "equipment_options": ["EEG System A", "EEG System B", "Both Systems (Hyperscanning)"],
         "color_map": {"default": "#27ae60", "B": "#f39c12", "Both": "#e74c3c"},
-        "tag": "🟢 EEG · Click to book",
+        "tag": "EEG · Click to book",
     },
     "429": {
         "name": "fNIRS Hyperscanning",
@@ -142,7 +142,7 @@ ROOMS = {
         "notice": "💡 Please ensure fNIRS caps are cleaned and returned to the charging station after your session.",
         "equipment_options": ["fNIRS Frontal A (25330)", "fNIRS Frontal B (25215)", "Both (Hyperscanning)"],
         "color_map": {"default": "#3788d8", "B": "#8e44ad", "Both": "#e74c3c"},
-        "tag": "🔴 fNIRS · Click to book",
+        "tag": "fNIRS · Click to book",
     },
     "430": {
         "name": "fNIRS Hyperscanning",
@@ -151,7 +151,7 @@ ROOMS = {
         "notice": "💡 Please ensure fNIRS caps are cleaned and returned to the charging station after your session.",
         "equipment_options": ["fNIRS Frontal A (25330)", "fNIRS Frontal B (25215)", "Both (Hyperscanning)"],
         "color_map": {"default": "#3788d8", "B": "#8e44ad", "Both": "#e74c3c"},
-        "tag": "🟣 fNIRS · Click to book",
+        "tag": "fNIRS · Click to book",
     },
 }
 
@@ -226,7 +226,7 @@ def render_home():
     <div class="floor-wrapper">
     <p style="text-align:center; font-family:'DM Sans',sans-serif; color:#b0a0b0;
               font-size:0.75rem; margin:0 0 20px 0; letter-spacing:0.18em; text-transform:uppercase;">
-        4th Floor · Building A
+        4th Floor · TCIN · Lloyd Institute
     </p>
     """, unsafe_allow_html=True)
 
@@ -238,11 +238,11 @@ def render_home():
         <div class="room-card">
             <div class="room-name">EEG Spatial</div>
             <div class="room-number">427</div>
-            <div class="room-tag">🔵 EEG</div>
+            <div class="room-tag">EEG</div>
         </div>
         """, unsafe_allow_html=True)
         st.markdown("<div style='height:6px'></div>", unsafe_allow_html=True)
-        if st.button("📅 Book / View Schedule", key="btn_427", use_container_width=True, type="primary"):
+        if st.button("Book / View Schedule", key="btn_427", use_container_width=True, type="primary"):
             st.session_state.page = "427"
             st.rerun()
 
@@ -260,11 +260,11 @@ def render_home():
         <div class="room-card">
             <div class="room-name">fNIRS Hyperscanning</div>
             <div class="room-number">429</div>
-            <div class="room-tag">🔴 fNIRS</div>
+            <div class="room-tag">fNIRS</div>
         </div>
         """, unsafe_allow_html=True)
         st.markdown("<div style='height:6px'></div>", unsafe_allow_html=True)
-        if st.button("📅 Book / View Schedule", key="btn_429", use_container_width=True, type="primary"):
+        if st.button("Book / View Schedule", key="btn_429", use_container_width=True, type="primary"):
             st.session_state.page = "429"
             st.rerun()
 
@@ -278,11 +278,11 @@ def render_home():
         <div class="room-card">
             <div class="room-name">EEG Hyperscanning</div>
             <div class="room-number">426</div>
-            <div class="room-tag">🟢 EEG</div>
+            <div class="room-tag">EEG</div>
         </div>
         """, unsafe_allow_html=True)
         st.markdown("<div style='height:6px'></div>", unsafe_allow_html=True)
-        if st.button("📅 Book / View Schedule", key="btn_426", use_container_width=True, type="primary"):
+        if st.button("Book / View Schedule", key="btn_426", use_container_width=True, type="primary"):
             st.session_state.page = "426"
             st.rerun()
 
@@ -300,11 +300,11 @@ def render_home():
         <div class="room-card">
             <div class="room-name">fNIRS Hyperscanning</div>
             <div class="room-number">430</div>
-            <div class="room-tag">🟣 fNIRS</div>
+            <div class="room-tag">fNIRS</div>
         </div>
         """, unsafe_allow_html=True)
         st.markdown("<div style='height:6px'></div>", unsafe_allow_html=True)
-        if st.button("📅 Book / View Schedule", key="btn_430", use_container_width=True, type="primary"):
+        if st.button("Book / View Schedule", key="btn_430", use_container_width=True, type="primary"):
             st.session_state.page = "430"
             st.rerun()
 
@@ -335,7 +335,7 @@ def render_room(room_id: str):
         </div>
         """, unsafe_allow_html=True)
     with hcol2:
-        if st.button("⬅️ Floor Plan", use_container_width=True):
+        if st.button("Home Page", use_container_width=True, type="primary"):
             st.session_state.page = "home"
             st.rerun()
 
@@ -350,7 +350,7 @@ def render_room(room_id: str):
 
         with tab_book:
             with st.container(border=True):
-                researcher_name = st.text_input("Researcher Name", placeholder="e.g. Shane", key=f"name_{room_id}")
+                researcher_name = st.text_input("Researcher Name", placeholder="e.g. XSFang", key=f"name_{room_id}")
                 selected_equipment = st.selectbox("Select Equipment", cfg["equipment_options"], key=f"equip_{room_id}")
                 booking_date = st.date_input("Date", min_value=datetime.today(), key=f"date_{room_id}")
                 booking_date_str = booking_date.strftime("%Y-%m-%d")
