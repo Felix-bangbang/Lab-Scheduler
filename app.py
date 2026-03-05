@@ -181,15 +181,46 @@ def update_data(df, worksheet: str):
     conn.update(worksheet=worksheet, data=df)
     st.cache_data.clear()
 
-def check_conflict(df, date_str, start_time_str, equipment):
+def check_conflict(df, date_str, start_time_str, end_time_str, equipment):
+    """Check for time slot conflicts (supports multi-hour bookings)"""
     if df.empty:
         return False
-    subset = df[(df["Date"] == date_str) & (df["Start_Time"] == start_time_str)]
-    if subset.empty:
+    
+    # Parse the new booking time slot
+    try:
+        new_start = datetime.strptime(start_time_str, "%H:%M")
+        new_end = datetime.strptime(end_time_str, "%H:%M")
+    except:
         return False
-    for booked in subset["Equipment"].tolist():
-        if equipment == booked or "Both" in equipment or "Both" in booked:
-            return True
+    
+    # Check all bookings on the same day
+    subset = df[df["Date"] == date_str]
+    
+    for _, row in subset.iterrows():
+        # Check equipment conflict
+        booked_equipment = row["Equipment"]
+        equipment_conflict = (
+            equipment == booked_equipment or 
+            "Both" in equipment or 
+            "Both" in booked_equipment
+        )
+        
+        if not equipment_conflict:
+            continue
+        
+        # Check time slot overlap
+        try:
+            booked_start = datetime.strptime(row["Start_Time"], "%H:%M")
+            booked_end = datetime.strptime(row["End_Time"], "%H:%M")
+            
+            # Time overlap condition: new_start < booked_end AND new_end > booked_start
+            time_overlap = (new_start < booked_end) and (new_end > booked_start)
+            
+            if time_overlap:
+                return True
+        except:
+            continue
+    
     return False
 
 def get_event_color(equipment, color_map):
@@ -354,11 +385,20 @@ def render_room(room_id: str):
                 selected_equipment = st.selectbox("Select Equipment", cfg["equipment_options"], key=f"equip_{room_id}")
                 booking_date = st.date_input("Date", min_value=datetime.today(), key=f"date_{room_id}")
                 booking_date_str = booking_date.strftime("%Y-%m-%d")
-                start_time_str = st.selectbox("Start Time (1 Hour)", TIME_STRINGS, index=1, key=f"time_{room_id}")
+                start_time_str = st.selectbox("Start Time", TIME_STRINGS, index=1, key=f"time_{room_id}")
+                duration_hours = st.selectbox("Duration (Hours)", options=[1, 2, 3, 4, 5, 6, 7, 8], index=0, key=f"duration_{room_id}")
 
                 try:
                     start_dt = datetime.strptime(str(start_time_str).strip(), "%H:%M")
-                    end_time_str = (start_dt + timedelta(hours=1)).strftime("%H:%M")
+                    end_dt = start_dt + timedelta(hours=duration_hours)
+                    end_time_str = end_dt.strftime("%H:%M")
+                    
+                    # Display booking time slot
+                    st.caption(f"📅 Booking: **{start_time_str}** → **{end_time_str}** ({duration_hours} hour{'s' if duration_hours > 1 else ''})")
+                    
+                    # Check if end time exceeds 20:00
+                    if end_dt.hour > 20 or (end_dt.hour == 20 and end_dt.minute > 0):
+                        st.warning(f"⚠️ Selected duration extends beyond 20:00 (lab closing time).")
                 except Exception:
                     st.error("Time format error.")
                     st.stop()
@@ -368,8 +408,8 @@ def render_room(room_id: str):
                         st.warning("Please enter your name.")
                     else:
                         df = get_data(worksheet)
-                        if check_conflict(df, booking_date_str, start_time_str, selected_equipment):
-                            st.error(f"⚠️ Conflict! {selected_equipment} is already booked at this time.")
+                        if check_conflict(df, booking_date_str, start_time_str, end_time_str, selected_equipment):
+                            st.error(f"⚠️ Conflict! {selected_equipment} is already booked during this time period.")
                         else:
                             new_entry = pd.DataFrame([{
                                 "Researcher": researcher_name,
@@ -380,7 +420,7 @@ def render_room(room_id: str):
                                 "Created_At": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                             }])
                             update_data(pd.concat([df, new_entry], ignore_index=True), worksheet)
-                            st.success("✅ Booking Confirmed!")
+                            st.success(f"✅ Booking Confirmed! {start_time_str} - {end_time_str}")
                             st.rerun()
 
         with tab_cancel:
@@ -390,7 +430,8 @@ def render_room(room_id: str):
                 df = df.fillna("")
                 df["display_label"] = (
                     df["Date"].astype(str) + " | " +
-                    df["Start_Time"].astype(str) + " | " +
+                    df["Start_Time"].astype(str) + "-" +
+                    df["End_Time"].astype(str) + " | " +
                     df["Researcher"].astype(str) + " | " +
                     df["Equipment"].astype(str)
                 )
@@ -417,8 +458,18 @@ def render_room(room_id: str):
         if not df.empty:
             for _, row in df.iterrows():
                 color = get_event_color(row["Equipment"], cfg["color_map"])
+                
+                # Calculate duration
+                try:
+                    start = datetime.strptime(row["Start_Time"], "%H:%M")
+                    end = datetime.strptime(row["End_Time"], "%H:%M")
+                    duration = (end - start).seconds // 3600
+                    duration_text = f"{duration}h"
+                except:
+                    duration_text = ""
+                
                 calendar_events.append({
-                    "title": f"{row['Researcher']} — {row['Equipment']}",
+                    "title": f"{row['Researcher']} — {row['Equipment']} ({duration_text})",
                     "start": f"{row['Date']}T{row['Start_Time']}",
                     "end": f"{row['Date']}T{row['End_Time']}",
                     "backgroundColor": color,
@@ -468,3 +519,5 @@ elif st.session_state.page in ROOMS:
 else:
     st.session_state.page = "home"
     st.rerun()
+
+
